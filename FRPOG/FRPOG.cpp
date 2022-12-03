@@ -2,11 +2,153 @@
 //
 
 #include <iostream>
+#include <vector>
+#include <sys/types.h>
+#include <fstream>
+#include "dirent.h"
+#include <sstream>
+
+struct wordstruct {
+    std::string word;
+    int count;
+};
+
+auto CountWordsinFile = [](const std::string content)
+{
+    std::vector<wordstruct> vec;
+    std::string clearedstring;
+
+    //remove special characters
+    for (int i = 0; i < content.size(); ++i)
+    {
+        if ((content[i] >= 'a' && content[i] <= 'z') || (content[i] >= 'A' && content[i] <= 'Z') || content[i] == ' ') //initializing condition  
+        {
+            clearedstring = clearedstring + content[i];//passing characters that match condition to temp string from initialized string
+        }
+    }
+
+
+    //count words
+    std::istringstream iss(clearedstring);
+    std::string buffer;
+    while (iss >> buffer) {
+        if (vec.size() == 0)
+        {
+            wordstruct wordstruct;
+            wordstruct.word = buffer;
+            wordstruct.count = 1;
+            vec.push_back(wordstruct);
+        }
+        else {
+            for (int i = 0; i < vec.size(); i++)
+            {
+                if (vec[i].word == buffer) {
+
+                    vec[i].count = vec[i].count + 1;
+                    break;
+                }
+                else if (i + 1 >= vec.size()) {
+                    wordstruct wordstruct;
+                    wordstruct.word = buffer;
+                    wordstruct.count = 0;
+                    vec.push_back(wordstruct);
+                }
+            }
+        }
+    }
+    return vec;
+};
+
+auto CombineVectors = [](const std::vector<std::vector<wordstruct>> vec) {
+    std::vector<wordstruct> finalvec;
+    for (int i = 0; i < vec.size(); i++) {
+        for (int j = 0; j < vec[i].size(); j++)
+            if (finalvec.size() == 0)
+            {
+                wordstruct wordstruct;
+                wordstruct.word = vec[i][j].word;
+                wordstruct.count = vec[i][j].count;
+                finalvec.push_back(wordstruct);
+            }
+            else {
+                bool found = false;
+                for (int k = 0; k < finalvec.size(); k++)
+                {
+                    if (finalvec[k].word == vec[i][j].word)
+                    {
+                        finalvec[k].count = finalvec[k].count + vec[i][j].count;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    wordstruct wordstruct;
+                    wordstruct.word = vec[i][j].word;
+                    wordstruct.count = vec[i][j].count;
+                    finalvec.push_back(wordstruct);
+                }
+            }
+    }
+    return finalvec;
+};
+
+auto CountWords= [](const std::string dir, const std::string filetyp) {
+    std::vector<wordstruct> vec;
+    std::vector<std::vector<wordstruct>> vecofvecs;
+    char dirchar[100000];
+    strcpy_s(dirchar, dir.c_str());
+    DIR* dr;
+    struct dirent* en;
+    std::ifstream myfile;
+    dr = opendir(dirchar); //open all directory
+    if (dr) {
+        while ((en = readdir(dr)) != NULL) {
+            std::string nameoffile;
+            for (int x = 0; x < 261; x++) {
+                nameoffile = nameoffile + en->d_name[x];
+            }
+            if (nameoffile.find(filetyp) != std::string::npos) {
+                myfile.open(dir + "\\" + en->d_name);
+                std::string content((std::istreambuf_iterator<char>(myfile)),
+                    (std::istreambuf_iterator<char>()));
+                vecofvecs.push_back(CountWordsinFile(content));
+                myfile.close();
+            }
+        }
+        closedir(dr); //close all directory
+    }
+
+    vec = CombineVectors(vecofvecs);
+
+    return vec;
+};
+
+auto printvector = [](std::vector<wordstruct> vec)
+{
+    std::string string;
+    for (int i = 0; i < vec.size(); i++)
+    {
+
+        string = string + "Word: " + vec[i].word + " \tCount: " + std::to_string(vec[i].count) + "\n";
+
+    }
+    std::cout << "\n\n";
+    return string;
+};
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    std::string directory = "C:\\Users\\kleme\\source\\repos\\FRPOG\\FRPOG\\testfiles";
+    std::string filetyp;
+    std::vector<wordstruct> vec;
 
+    //std::cout << "directory:\n";
+    //std::cin >> directory;
+    std::cout << "filetyp:\n";
+    std::cin >> filetyp;
+
+    vec = CountWords(directory, filetyp);
+    std::cout << printvector(vec);
     /*
         struct word(
             string word
