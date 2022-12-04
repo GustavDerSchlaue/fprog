@@ -26,6 +26,10 @@ auto CountWordsinFile = [](const std::string content)
         {
             clearedstring = clearedstring + content[i];//passing characters that match condition to temp string from initialized string
         }
+        else
+        {
+            clearedstring = clearedstring + " ";
+        }
     }
 
 
@@ -111,7 +115,6 @@ auto CountWords= [](const std::string dir, const std::string filetyp) {
             if (nameoffile.find(filetyp) != std::string::npos) {
                 myfile.open(dir + "\\" + en->d_name);
                 if(myfile.is_open()){
-                    std::cout << dir + "\\" + en->d_name;
                     std::string content((std::istreambuf_iterator<char>(myfile)),
                                         (std::istreambuf_iterator<char>()));
                     vecofvecs.push_back(CountWordsinFile(content));
@@ -139,7 +142,6 @@ auto printvector = [](std::vector<wordstruct> vec)
         string = string + "Word: " + vec[i].word + " \tCount: " + std::to_string(vec[i].count) + "\n";
 
     }
-    std::cout << "\n\n";
     return string;
 };
 
@@ -184,54 +186,6 @@ int main(int argc, char** argv) {
     std::cout << displayVector;
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-        struct word(
-            string word
-            int numb
-        ) 
-        Vector<Vector<word>>
-        Vector<word>
-    
-    
-        1. vector open directory (path, type)
-            opens directory
-            saves all correct files in vector
-            for each file opens 
-                2. vector look for word(string)
-                    removes all , and ; from string
-                    goes through and checks for sepereation by " " and "\n"
-                    saves new words in vector of structs
-                        struct{
-                            string word
-                            int number
-                        }
-                    returns vector
-            saves for each file the vector in a new vector(vecofvecs)
-            creates new vector
-            vector = count(vecofvecs)   returns a new vector of struct where all vector where counted
-    */
 
 // Programm ausführen: STRG+F5 oder Menüeintrag "Debuggen" > "Starten ohne Debuggen starten"
 // Programm debuggen: F5 oder "Debuggen" > Menü "Debuggen starten"
