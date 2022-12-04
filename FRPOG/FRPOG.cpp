@@ -7,6 +7,7 @@
 #include <fstream>
 #include "dirent.h"
 #include <sstream>
+#include <algorithm>
 
 struct wordstruct {
     std::string word;
@@ -109,10 +110,14 @@ auto CountWords= [](const std::string dir, const std::string filetyp) {
             }
             if (nameoffile.find(filetyp) != std::string::npos) {
                 myfile.open(dir + "\\" + en->d_name);
-                std::string content((std::istreambuf_iterator<char>(myfile)),
-                    (std::istreambuf_iterator<char>()));
-                vecofvecs.push_back(CountWordsinFile(content));
-                myfile.close();
+                if(myfile.is_open()){
+                    std::cout << dir + "\\" + en->d_name;
+                    std::string content((std::istreambuf_iterator<char>(myfile)),
+                                        (std::istreambuf_iterator<char>()));
+                    vecofvecs.push_back(CountWordsinFile(content));
+                    myfile.close();
+                }
+
             }
         }
         closedir(dr); //close all directory
@@ -123,6 +128,8 @@ auto CountWords= [](const std::string dir, const std::string filetyp) {
     return vec;
 };
 
+// used to print the vector
+// For debugging
 auto printvector = [](std::vector<wordstruct> vec)
 {
     std::string string;
@@ -136,19 +143,69 @@ auto printvector = [](std::vector<wordstruct> vec)
     return string;
 };
 
-int main()
+//used in sort
+bool compareByLength(wordstruct &a, wordstruct &b)
 {
-    std::string directory = "C:\\Users\\kleme\\source\\repos\\FRPOG\\FRPOG\\testfiles";
+    return a.count > b.count;
+}
+
+// Sorted vector
+auto sortVector = [](const std::vector<wordstruct> &vec){
+    std::vector<wordstruct> sorted_vec = vec;
+
+    std::sort(sorted_vec.begin(), sorted_vec.end(), compareByLength);
+
+    return sorted_vec;
+};
+
+int main(int argc, char** argv) {
+    std::string directory;
     std::string filetyp;
     std::vector<wordstruct> vec;
 
-    //std::cout << "directory:\n";
-    //std::cin >> directory;
-    std::cout << "filetyp:\n";
-    std::cin >> filetyp;
+    if(argc == 3 ){
+        directory = argv[1];
+        filetyp = argv[2];
+    }else{
+        std::cout << "Insert path: ";
+        std::cin >> directory;
+
+        std::cout << "Insert extension:";
+        std::cin >> filetyp;
+    }
+
+
 
     vec = CountWords(directory, filetyp);
-    std::cout << printvector(vec);
+
+    vec = sortVector(vec);
+    std::string displayVector = printvector(vec);
+
+    std::cout << displayVector;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*
         struct word(
             string word
@@ -175,8 +232,6 @@ int main()
             creates new vector
             vector = count(vecofvecs)   returns a new vector of struct where all vector where counted
     */
-
-}
 
 // Programm ausführen: STRG+F5 oder Menüeintrag "Debuggen" > "Starten ohne Debuggen starten"
 // Programm debuggen: F5 oder "Debuggen" > Menü "Debuggen starten"

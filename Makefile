@@ -1,16 +1,14 @@
-TARGET  = word-counter
-
-CC      = g++
-SRCDIR  = src
-OBJDIR  = output
-CONF 	= -std=c++17 -lstdc++fs
+compiler      = g++
+src  = FRPOG
+obj  = output
+cnf 	= -std=c++17 -lstdc++fs
 
 test: word-counter
-	$(OBJDIR)/word-counter $(arg1) $(arg2)
+	$(obj)/word-counter $(arg_1) $(arg_2)
 
 run: word-counter
-	$(OBJDIR)/word-counter
+	$(obj)/word-counter
 
-word-counter: FRPOG.cpp
-	mkdir -p $(OBJDIR)
-	$(CC) -o $(OBJDIR)/word-counter FRPOG.cpp $(CONF)
+word-counter: FRPOG/FRPOG.cpp
+	mkdir -p $(obj)
+	$(compiler) -o $(obj)/word-counter $(src)/FRPOG.cpp $(cnf)
